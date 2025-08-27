@@ -87,6 +87,7 @@ button:disabled {
   display: flex;
   align-items: center;
   margin-bottom: 20px;
+  gap: 15px;
 }
 
 input[type="text"] {
@@ -157,7 +158,6 @@ textarea:focus {
   display: flex;
   gap: 15px;
   flex-wrap: wrap;
-  margin-top: 30px;
 }
 
 .button-row button {
