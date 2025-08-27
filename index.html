@@ -70,12 +70,12 @@
     <div class="section artist-section">
       <div id="individualInputs">
         <div class="input-group">
-          <input type="text" id="artistInput" placeholder="Login required" disabled>
+          <input type="text" id="artistInput" disabled>
         </div>
       </div>
       <div id="bulkInputs" style="display: none;">
         <div class="input-group">
-          <textarea id="artistTextarea" placeholder="Login required" rows="6" disabled></textarea>
+          <textarea id="artistTextarea" rows="6" disabled></textarea>
         </div>
         <div class="bulk-help">
           Enter artist names separated by commas or new lines (e.g., "Artist 1, Artist 2" or one per line)
@@ -83,6 +83,7 @@
       </div>
       <div class="button-row">
         <button id="fetchBtn" disabled>Get Top Tracks</button>
+        <button id="clearAllBtn" class="control-btn">Clear All</button>
       </div>
       
       <!-- Artist status list -->

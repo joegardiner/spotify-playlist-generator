@@ -520,6 +520,23 @@ document.getElementById("copyBtn").onclick = async () => {
   }, 150);
 };
 
+// Clear All button handler
+document.getElementById('clearAllBtn').onclick = () => {
+  document.getElementById('output').value = '';
+  document.getElementById('trackList').innerHTML = '';
+  document.getElementById('trackSelectionSection').style.display = 'none';
+
+  // Clear additional artist inputs
+  document.querySelectorAll('.input-group input[type="text"]').forEach((input, idx) => {
+    input.value = '';
+    if (idx > 0) input.parentElement.remove();
+  });
+
+  document.getElementById('artistTextarea').value = '';
+  if (typeof clearArtistStatus === 'function') clearArtistStatus();
+  if (window.allTracks) window.allTracks = [];
+};
+
 // Add multiple artist functionality
 let artistCount = 1;
 
@@ -595,7 +612,7 @@ function setControlsEnabled(enabled) {
     'inputMode',
     'fetchBtn',
     'copyBtn',
-    'addArtistBtn'
+    'addArtistBtn',
   ];
   
   controls.forEach(id => {
@@ -607,14 +624,8 @@ function setControlsEnabled(enabled) {
   
   const artistInput = document.getElementById('artistInput');
   const artistTextarea = document.getElementById('artistTextarea');
-  
-  if (enabled) {
-    artistInput.placeholder = 'Enter artist name';
-    artistTextarea.placeholder = 'Enter artist names (comma or newline separated)';
-  } else {
-    artistInput.placeholder = 'Login required';
-    artistTextarea.placeholder = 'Login required';
-  }
+  artistInput.placeholder = 'Enter artist name';
+  artistTextarea.placeholder = 'Enter artist names (comma or newline separated)';
   
   document.querySelectorAll('.artist-input').forEach(input => {
     input.disabled = !enabled;
