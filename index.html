@@ -1,7 +1,20 @@
 <!DOCTYPE html>
 <html>
-<head><title>Test Page</title></head>
+<head>
+  <meta charset="utf-8">
+  <title>Spotify Playlist Generator</title>
+</head>
 <body>
-  <h1>Hello World</h1>
+  <h1>Spotify Playlist Generator</h1>
+
+  <button id="loginBtn">Login with Spotify</button>
+  <div id="status"></div>
+
+  <input type="text" id="artistInput" placeholder="Enter artist name">
+  <button id="fetchBtn">Get Top Tracks</button>
+
+  <textarea id="output" rows="10" cols="60" readonly></textarea>
+
+  <script src="script.js"></script>
 </body>
 </html>
