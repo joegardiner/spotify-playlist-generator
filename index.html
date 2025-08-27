@@ -15,6 +15,28 @@
       <div id="status" class="status"></div>
     </div>
 
+    <div class="section options-section">
+      <h3>Options</h3>
+      <div class="options-grid">
+        <div class="option-group">
+          <label for="trackCount">Number of tracks:</label>
+          <select id="trackCount">
+            <option value="5" selected>5 tracks</option>
+            <option value="10">10 tracks</option>
+            <option value="15">15 tracks</option>
+            <option value="20">20 tracks</option>
+          </select>
+        </div>
+        <div class="option-group">
+          <label for="sortMethod">Sort by:</label>
+          <select id="sortMethod">
+            <option value="popularity" selected>Spotify Top Tracks</option>
+            <option value="plays">Most Played</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
     <div class="section">
       <div class="input-group">
         <input type="text" id="artistInput" placeholder="Enter artist name">
