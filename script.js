@@ -3,6 +3,7 @@ const redirectUri = window.location.origin + window.location.pathname;
 let accessToken = null;
 let userMarket = 'GB';
 let consoleMessages = [];
+let allTracks = [];
 
 function addConsoleMessage(message, type = 'info') {
   const timestamp = new Date().toLocaleTimeString();
@@ -176,6 +177,101 @@ function updateLoginSuccess() {
   getUserMarket();
 }
 
+function displayTrackSelection() {
+  const section = document.getElementById('trackSelectionSection');
+  const trackList = document.getElementById('trackList');
+  
+  if (allTracks.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  
+  section.style.display = 'block';
+  
+  trackList.innerHTML = allTracks.map(artistGroup => `
+    <div class="artist-group">
+      <h4>${artistGroup.artistName}</h4>
+      ${artistGroup.tracks.map(track => `
+        <div class="track-item ${track.included ? '' : 'disabled'}">
+          <input type="checkbox" class="track-checkbox" 
+                 ${track.included ? 'checked' : ''} 
+                 onchange="toggleTrack('${track.id}', this.checked)">
+          <img src="${track.image}" alt="Album art" class="track-image" 
+               onerror="this.style.display='none'">
+          <div class="track-info">
+            <div class="track-name">${track.name}</div>
+            <div class="track-details">${track.album}</div>
+          </div>
+          <button class="preview-btn" ${track.preview_url ? '' : 'disabled'}
+                  onclick="togglePreview('${track.id}', '${track.preview_url}')">
+            Preview
+          </button>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+  
+  updateOutputFromSelection();
+}
+
+function toggleTrack(trackId, included) {
+  allTracks.forEach(artistGroup => {
+    const track = artistGroup.tracks.find(t => t.id === trackId);
+    if (track) {
+      track.included = included;
+    }
+  });
+  updateOutputFromSelection();
+}
+
+let currentAudio = null;
+
+function togglePreview(trackId, previewUrl) {
+  if (!previewUrl) return;
+  
+  if (currentAudio && !currentAudio.paused) {
+    currentAudio.pause();
+    currentAudio = null;
+    return;
+  }
+  
+  currentAudio = new Audio(previewUrl);
+  currentAudio.volume = 0.5;
+  currentAudio.play().catch(e => console.log('Preview failed:', e));
+}
+
+function updateOutputFromSelection() {
+  const uris = [];
+  
+  allTracks.forEach(artistGroup => {
+    const includedTracks = artistGroup.tracks.filter(t => t.included);
+    if (includedTracks.length > 0) {
+      uris.push(`# ${artistGroup.artistName}`);
+      includedTracks.forEach(track => {
+        uris.push(`${track.uri}`);
+      });
+      uris.push('');
+    }
+  });
+  
+  document.getElementById("output").value = uris.join("\n");
+}
+
+// Add event listeners for select all/deselect all
+document.getElementById('selectAllBtn').onclick = () => {
+  allTracks.forEach(artistGroup => {
+    artistGroup.tracks.forEach(track => track.included = true);
+  });
+  displayTrackSelection();
+};
+
+document.getElementById('deselectAllBtn').onclick = () => {
+  allTracks.forEach(artistGroup => {
+    artistGroup.tracks.forEach(track => track.included = false);
+  });
+  displayTrackSelection();
+};
+
 // Artist search
 document.getElementById("fetchBtn").onclick = async () => {
   if (!accessToken) {
@@ -286,13 +382,24 @@ document.getElementById("fetchBtn").onclick = async () => {
         }
         
         if (tracks.length > 0) {
-          const uris = tracks.slice(0, trackCount).map(t => 
-            `${t.uri} // ${t.name} - ${t.artists[0].name}`
-          );
-          allUris.push(`# ${artist.name}`, ...uris, '');
+          const trackData = tracks.slice(0, trackCount).map(t => ({
+            uri: t.uri,
+            name: t.name,
+            artist: t.artists[0].name,
+            album: t.album?.name || 'Unknown Album',
+            image: t.album?.images?.[2]?.url || t.album?.images?.[0]?.url || '',
+            preview_url: t.preview_url,
+            id: t.id,
+            included: true
+          }));
           
-          updateArtistStatus(artistName, 'success', `${Math.min(tracks.length, trackCount)} tracks found`);
-          addConsoleMessage(`${artist.name}: Found ${Math.min(tracks.length, trackCount)} tracks`, 'success');
+          allTracks.push({
+            artistName: artist.name,
+            tracks: trackData
+          });
+          
+          updateArtistStatus(artistName, 'success', `${trackData.length} tracks found`);
+          addConsoleMessage(`${artist.name}: Found ${trackData.length} tracks`, 'success');
         } else {
           updateArtistStatus(artistName, 'error', 'No tracks found');
           addConsoleMessage(`${artist.name}: No tracks found`, 'error');
@@ -304,13 +411,13 @@ document.getElementById("fetchBtn").onclick = async () => {
       }
     }
     
-    if (allUris.length === 0) {
+    if (allTracks.length === 0) {
       document.getElementById("output").value = "No tracks found for any of the specified artists";
       showError("No tracks found for any of the specified artists");
     } else {
-      document.getElementById("output").value = allUris.join("\n");
-      const trackCount = allUris.filter(line => line.startsWith('spotify:')).length;
-      addConsoleMessage(`Successfully generated playlist with ${trackCount} tracks`, 'success');
+      displayTrackSelection();
+      const totalTracks = allTracks.reduce((sum, group) => sum + group.tracks.length, 0);
+      addConsoleMessage(`Successfully found ${totalTracks} tracks from ${allTracks.length} artists`, 'success');
     }
     
   } catch (error) {
