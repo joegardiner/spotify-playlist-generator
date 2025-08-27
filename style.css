@@ -157,6 +157,7 @@ textarea:focus {
   display: flex;
   gap: 15px;
   flex-wrap: wrap;
+  margin-top: 30px;
 }
 
 .button-row button {
@@ -175,5 +176,103 @@ textarea:focus {
   
   .button-row {
     flex-direction: column;
+  }
+}
+
+.options-section h3 {
+  margin-bottom: 20px;
+  color: #1ed760;
+  font-size: 1.2em;
+  font-weight: 600;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.option-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.option-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+select {
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+select:focus {
+  outline: none;
+  border-color: #1db954;
+  box-shadow: 0 0 0 3px rgba(29, 185, 84, 0.1);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+select option {
+  background: #191414;
+  color: white;
+  padding: 8px;
+}
+
+@media (max-width: 600px) {
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 8px 16px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  transition: all 0.2s ease; /* Add transition */
+  transform-origin: center; /* Set transform origin for scaling */
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.copy-btn.copied {
+  background: rgba(29, 185, 84, 0.3);
+  transform: scale(0.95); /* Subtle scale down when clicked */
+}
+
+.copy-btn:active {
+  transform: scale(0.9); /* More pronounced scale on click */
+}
+
+/* Optional: Add a subtle pulse animation when copied */
+.copy-btn.copied {
+  background: rgba(29, 185, 84, 0.3);
+  animation: copyPulse 0.6s ease-out;
+}
+
+@keyframes copyPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
   }
 }
