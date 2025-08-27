@@ -70,6 +70,7 @@ async function generateCodeChallenge(verifier) {
 document.addEventListener('DOMContentLoaded', function() {
   setControlsEnabled(false);
   addConsoleMessage('Application initialized. Please login to Spotify to continue.', 'info');
+  updateRemoveButtons();
 });
 
 // Login handler
@@ -530,6 +531,16 @@ document.getElementById("copyBtn").onclick = async () => {
   }, 150);
 };
 
+function updateRemoveButtons() {
+  const inputGroups = document.querySelectorAll('#individualInputs .input-group');
+  inputGroups.forEach((group) => {
+    const removeBtn = group.querySelector('.remove-btn');
+    if (removeBtn) {
+      removeBtn.style.display = (inputGroups.length > 1) ? '' : 'none';
+    }
+  });
+}
+
 // Clear All button handler
 document.getElementById('clearAllBtn').onclick = () => {
   document.getElementById('output').value = '';
@@ -545,55 +556,53 @@ document.getElementById('clearAllBtn').onclick = () => {
   document.getElementById('artistTextarea').value = '';
   if (typeof clearArtistStatus === 'function') clearArtistStatus();
   if (window.allTracks) window.allTracks = [];
+  updateRemoveButtons();
 };
 
 // Add multiple artist functionality
 let artistCount = 1;
 
-// Create + button and insert it after the first input
-const addButton = document.createElement('button');
-addButton.textContent = '+';
-addButton.id = 'addArtistBtn';
-addButton.type = 'button';
-addButton.className = 'add-btn';
-
-const firstInputGroup = document.querySelector('.input-group');
-firstInputGroup.appendChild(addButton);
-
-// Add artist input handler
 document.getElementById('addArtistBtn').onclick = () => {
-  artistCount++;
-  
+  const individualInputs = document.getElementById('individualInputs');
+  const inputGroups = individualInputs.querySelectorAll('.input-group');
+  const nextNumber = inputGroups.length + 1;
+
   const inputGroup = document.createElement('div');
   inputGroup.className = 'input-group artist-input-group';
-  
+
   const input = document.createElement('input');
   input.type = 'text';
-  input.placeholder = `Enter artist name ${artistCount}`;
+  input.placeholder = `Enter artist name ${nextNumber}`;
   input.className = 'artist-input';
+  input.disabled = document.getElementById('addArtistBtn').disabled;
   input.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       document.getElementById('fetchBtn').click();
     }
   });
-  
+
   const removeBtn = document.createElement('button');
   removeBtn.textContent = '×';
   removeBtn.type = 'button';
   removeBtn.className = 'remove-btn';
-  
-  removeBtn.onclick = () => {
-    inputGroup.remove();
-    artistCount--;
-  };
-  
+
+  document.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.onclick = function() {
+      const inputGroups = document.querySelectorAll('#individualInputs .input-group');
+      if (inputGroups.length > 1) {
+        this.parentElement.remove();
+        updateRemoveButtons();
+      }
+    };
+  });
+
   inputGroup.appendChild(input);
   inputGroup.appendChild(removeBtn);
-  
-  const buttonRow = document.querySelector('.button-row');
-  buttonRow.parentNode.insertBefore(inputGroup, buttonRow);
-  
+
+  individualInputs.appendChild(inputGroup);
+
   input.focus();
+  updateRemoveButtons();
 };
 
 // Add input mode toggle functionality
