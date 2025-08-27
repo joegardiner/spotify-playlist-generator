@@ -341,7 +341,7 @@ function updateArtistStatus(artistName, status, message = '') {
   
   statusItem.innerHTML = `
     <div class="status-icon ${iconClass}">${icon}</div>
-    <div class="artist-name">${artistName}</div>
+    <div class="artist-name">${artistName} - </div>
     <div class="status-message">${message}</div>
   `;
 }
