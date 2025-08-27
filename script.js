@@ -83,23 +83,63 @@ document.getElementById("fetchBtn").onclick = async () => {
     alert("Please login first");
     return;
   }
-  const artistName = document.getElementById("artistInput").value;
-  if (!artistName) return;
   
-  let res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(artistName)}&type=artist&limit=1`, {
-    headers: { Authorization: "Bearer " + accessToken }
-  });
-  let data = await res.json();
-  let artistId = data.artists.items[0]?.id;
-  if (!artistId) {
-    document.getElementById("output").value = "Artist not found";
+  const artistName = document.getElementById("artistInput").value.trim();
+  if (!artistName) {
+    alert("Please enter an artist name");
     return;
   }
   
-  res = await fetch(`https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`, {
-    headers: { Authorization: "Bearer " + accessToken }
-  });
-  data = await res.json();
-  const uris = data.tracks.slice(0, 5).map(t => t.uri);
-  document.getElementById("output").value = uris.join("\n");
+  const fetchBtn = document.getElementById("fetchBtn");
+  fetchBtn.disabled = true;
+  fetchBtn.textContent = "Loading...";
+  
+  try {
+    // Search artist with more specific query
+    let res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(`artist:"${artistName}"`)}&type=artist&limit=5`, {
+      headers: { Authorization: "Bearer " + accessToken }
+    });
+    
+    if (!res.ok) throw new Error(`Search failed: ${res.status}`);
+    
+    let data = await res.json();
+    
+    if (!data.artists.items.length) {
+      document.getElementById("output").value = "Artist not found";
+      return;
+    }
+    
+    // Find exact match first, then best match
+    let artist = data.artists.items.find(a => 
+      a.name.toLowerCase() === artistName.toLowerCase()
+    ) || data.artists.items[0];
+    
+    console.log(`Found artist: ${artist.name} (ID: ${artist.id})`);
+    
+    // Get top tracks
+    res = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=US`, {
+      headers: { Authorization: "Bearer " + accessToken }
+    });
+    
+    if (!res.ok) throw new Error(`Failed to fetch tracks: ${res.status}`);
+    
+    data = await res.json();
+    
+    if (!data.tracks.length) {
+      document.getElementById("output").value = "No top tracks found for this artist";
+      return;
+    }
+    
+    // Log track names to verify
+    console.log("Top tracks:", data.tracks.map(t => `${t.name} by ${t.artists[0].name}`));
+    
+    const uris = data.tracks.slice(0, 5).map(t => t.uri);
+    document.getElementById("output").value = uris.join("\n");
+    
+  } catch (error) {
+    document.getElementById("output").value = "Error: " + error.message;
+  } finally {
+    fetchBtn.disabled = false;
+    fetchBtn.textContent = "Get Top Tracks";
+  }
 };
