@@ -202,10 +202,16 @@ function displayTrackSelection() {
             <div class="track-name">${track.name}</div>
             <div class="track-details">${track.album}</div>
           </div>
-          <button class="preview-btn" ${track.preview_url ? '' : 'disabled'}
-                  onclick="togglePreview('${track.id}', '${track.preview_url}')">
-            Preview
-          </button>
+          <a class="spotify-icon-link"
+            href="https://open.spotify.com/track/${track.id}"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Open in Spotify">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 168 168">
+              <circle fill="#1db954" cx="84" cy="84" r="84"/>
+              <path fill="#fff" d="M122.1 115.2c-1.5 2.5-4.7 3.3-7.2 1.8-19.7-12-44.6-14.7-73.9-8.1-2.8.6-5.5-1.2-6.1-4s1.2-5.5 4-6.1c31.6-7 59.1-4 80.6 9.2 2.5 1.5 3.3 4.7 1.8 7.1zm9.2-20.2c-1.9 3-5.8 4-8.8 2.1-22.6-13.8-57.1-17.8-83.8-9.8-3.3 1-6.7-.9-7.7-4.2-1-3.3.9-6.7 4.2-7.7 29.7-8.7 67.1-4.3 92.1 11.1 3 1.9 4 5.8 2.1 8.5zm10.3-22.1c-2.3 3.7-7.1 4.9-10.8 2.6-25.9-15.8-68.2-17.2-92.2-9.5-3.9 1.2-8-1-9.2-4.9-1.2-3.9 1-8 4.9-9.2 27.1-8.3 73.1-6.7 102.2 11.1 3.7 2.3 4.9 7.1 2.6 10.1z"/>
+            </svg>
+          </a>
         </div>
       `).join('')}
     </div>

@@ -723,16 +723,28 @@ textarea#artistTextarea:disabled {
   color: rgba(255, 255, 255, 0.7);
 }
 
-.preview-btn {
-  padding: 6px 12px;
-  font-size: 12px;
-  background: rgba(29, 185, 84, 0.2);
-  border: 1px solid rgba(29, 185, 84, 0.5);
-  min-width: 60px;
+.spotify-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(29, 185, 84, 0.15);
+  transition: box-shadow 0.2s, transform 0.2s;
+  margin-left: 12px;
+  text-decoration: none;
 }
 
-.preview-btn:disabled {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.5);
+.spotify-icon-link svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
+.spotify-icon-link:hover {
+  box-shadow: 0 4px 16px rgba(29, 185, 84, 0.25);
+  transform: scale(1.08);
+  background: #e9ffe6;
 }
