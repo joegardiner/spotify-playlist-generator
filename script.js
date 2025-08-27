@@ -22,6 +22,12 @@ async function generateCodeChallenge(verifier) {
     .replace(/=/g, '');
 }
 
+// Initialize with disabled state
+document.addEventListener('DOMContentLoaded', function() {
+  setControlsEnabled(false);
+  addConsoleMessage('Application initialized. Please login to Spotify to continue.', 'info');
+});
+
 // Login handler
 document.getElementById("loginBtn").onclick = async () => {
   const codeVerifier = generateCodeVerifier();
@@ -229,12 +235,6 @@ document.getElementById("fetchBtn").onclick = async () => {
   }
 };
 
-// Initialize with disabled state
-document.addEventListener('DOMContentLoaded', function() {
-  setControlsEnabled(false);
-  addConsoleMessage('Application initialized. Please login to Spotify to continue.', 'info');
-});
-
 // Copy button handler
 document.getElementById("copyBtn").onclick = () => {
   const textarea = document.getElementById("output");
@@ -322,7 +322,6 @@ document.getElementById('addArtistBtn').onclick = () => {
   inputGroup.appendChild(input);
   inputGroup.appendChild(removeBtn);
   
-  // Insert before the button row
   const buttonRow = document.querySelector('.button-row');
   buttonRow.parentNode.insertBefore(inputGroup, buttonRow);
   
