@@ -81,6 +81,7 @@ button:disabled {
   background: rgba(29, 185, 84, 0.2);
   border: 1px solid rgba(29, 185, 84, 0.5);
   color: #1ed760;
+  font-weight: 600;
 }
 
 .input-group {
@@ -93,8 +94,8 @@ button:disabled {
 input[type="text"] {
   width: 100%;
   padding: 14px 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 10px;
   color: white;
   font-size: 16px;
@@ -105,7 +106,14 @@ input[type="text"]:focus {
   outline: none;
   border-color: #1db954;
   box-shadow: 0 0 0 3px rgba(29, 185, 84, 0.1);
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.6);
+}
+
+input[type="text"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 input[type="text"]::placeholder {
@@ -215,6 +223,12 @@ select {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.05);
+}
+
 select:focus {
   outline: none;
   border-color: #1db954;
@@ -295,6 +309,7 @@ select option {
   width: 18px;
   height: 18px;
   background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 50%;
   font-size: 12px;
   font-weight: bold;
@@ -305,6 +320,7 @@ select option {
 
 .tooltip-icon:hover {
   background: rgba(29, 185, 84, 0.3);
+  border-color: rgba(29, 185, 84, 0.6);
   transform: scale(1.1);
 }
 
@@ -368,4 +384,94 @@ select option {
 .todo-section ul {
   list-style-type: disc;
   margin-left: 1.5rem;
+}
+
+.console-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  transform: translateY(calc(100% - 40px));
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  max-height: 300px;
+}
+
+.console-drawer.expanded {
+  transform: translateY(0);
+}
+
+.console-header {
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  user-select: none;
+}
+
+.console-toggle {
+  transition: transform 0.3s ease;
+}
+
+.console-drawer.expanded .console-toggle {
+  transform: rotate(180deg);
+}
+
+.console-content {
+  padding: 20px;
+  max-height: 240px;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.console-message {
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: pre-wrap;
+}
+
+.console-message.info {
+  color: #88ccff;
+  background: rgba(136, 204, 255, 0.1);
+}
+
+.console-message.error {
+  color: #ff6b7a;
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.console-message.success {
+  color: #1ed760;
+  background: rgba(29, 185, 84, 0.1);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+button:disabled:hover {
+  transform: none !important;
+  box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
+}
+
+.login-btn-success {
+  background: linear-gradient(45deg, #28a745, #34ce57) !important;
+  cursor: default !important;
+}
+
+.login-btn-success:hover {
+  transform: none !important;
 }
