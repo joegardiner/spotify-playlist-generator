@@ -238,24 +238,23 @@ function toggleTrack(trackId, included) {
       track.included = included;
     }
   });
+
+  // Update the UI for this track row
+  const trackItems = document.querySelectorAll('.track-item');
+  trackItems.forEach(item => {
+    // Find the checkbox inside this item
+    const checkbox = item.querySelector('.track-checkbox');
+    if (checkbox && checkbox.getAttribute('onchange')?.includes(trackId)) {
+      if (included) {
+        item.classList.remove('disabled');
+      } else {
+        item.classList.add('disabled');
+      }
+    }
+  });
+
   updateOutputFromSelection();
   updatePlaylistDuration();
-}
-
-let currentAudio = null;
-
-function togglePreview(trackId, previewUrl) {
-  if (!previewUrl) return;
-  
-  if (currentAudio && !currentAudio.paused) {
-    currentAudio.pause();
-    currentAudio = null;
-    return;
-  }
-  
-  currentAudio = new Audio(previewUrl);
-  currentAudio.volume = 0.5;
-  currentAudio.play().catch(e => console.log('Preview failed:', e));
 }
 
 function updateOutputFromSelection() {
@@ -410,7 +409,6 @@ document.getElementById("fetchBtn").onclick = async () => {
             artist: t.artists[0].name,
             album: t.album?.name || 'Unknown Album',
             image: t.album?.images?.[2]?.url || t.album?.images?.[0]?.url || '',
-            preview_url: t.preview_url,
             id: t.id,
             included: true,
             duration_ms: t.duration_ms
