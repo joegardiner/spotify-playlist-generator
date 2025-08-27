@@ -233,3 +233,46 @@ select option {
     grid-template-columns: 1fr;
   }
 }
+
+.copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 8px 16px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  transition: all 0.2s ease; /* Add transition */
+  transform-origin: center; /* Set transform origin for scaling */
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.copy-btn.copied {
+  background: rgba(29, 185, 84, 0.3);
+  transform: scale(0.95); /* Subtle scale down when clicked */
+}
+
+.copy-btn:active {
+  transform: scale(0.9); /* More pronounced scale on click */
+}
+
+/* Optional: Add a subtle pulse animation when copied */
+.copy-btn.copied {
+  background: rgba(29, 185, 84, 0.3);
+  animation: copyPulse 0.6s ease-out;
+}
+
+@keyframes copyPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
