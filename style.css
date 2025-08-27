@@ -165,11 +165,6 @@ textarea:focus {
   min-width: 150px;
 }
 
-#clearBtn {
-  background: rgba(255,255,255,0.2);
-  width: 40px;
-}
-
 @media (max-width: 600px) {
   .container {
     padding: 30px 20px;
