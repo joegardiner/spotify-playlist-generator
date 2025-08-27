@@ -191,7 +191,9 @@ document.getElementById("fetchBtn").onclick = async () => {
       }
       
       if (tracks.length > 0) {
-        const uris = tracks.slice(0, trackCount).map(t => t.uri);
+        const uris = tracks.slice(0, trackCount).map(t => 
+          `${t.uri} // ${t.name} - ${t.artists[0].name}`
+        );
         allUris.push(`# ${artist.name}`, ...uris, '');
         console.log(`${artist.name} tracks:`, tracks.slice(0, trackCount).map(t => `${t.name} (popularity: ${t.popularity})`));
       }
