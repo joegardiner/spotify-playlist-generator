@@ -166,6 +166,7 @@ textarea:focus {
 }
 
 #clearBtn {
+  background: rgba(255,255,255,0.2);
   width: 40px;
 }
 
