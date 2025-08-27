@@ -413,7 +413,6 @@ function updateLoginSuccess() {
   loginBtn.disabled = true;
   loginBtn.classList.add('login-btn-success');
   
-  statusEl.innerHTML = '<strong>Successfully connected to Spotify</strong>';
   statusEl.classList.add('logged-in');
   
   setControlsEnabled(true);
