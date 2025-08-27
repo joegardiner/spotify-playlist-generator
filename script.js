@@ -105,14 +105,13 @@ document.getElementById("fetchBtn").onclick = async () => {
   
   const fetchBtn = document.getElementById("fetchBtn");
   fetchBtn.disabled = true;
-  fetchBtn.textContent = "Loading...";
   
   try {
     let allUris = [];
     
     for (const artistName of artistNames) {
       // Search artist
-      document.getElementById("status").innerText = `Processing ${artistName}...`;
+      fetchBtn.textContent = `Processing ${artistName}`;
       let res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(`artist:"${artistName}"`)}&type=artist&limit=5`, {
         headers: { Authorization: "Bearer " + accessToken }
       });
@@ -192,9 +191,7 @@ document.getElementById("fetchBtn").onclick = async () => {
       }
       
       if (tracks.length > 0) {
-        const uris = tracks.slice(0, trackCount).map(t => 
-          `${t.uri} // ${t.name} - ${t.artists[0].name}`
-        );
+        const uris = tracks.slice(0, trackCount).map(t => t.uri);
         allUris.push(`# ${artist.name}`, ...uris, '');
         console.log(`${artist.name} tracks:`, tracks.slice(0, trackCount).map(t => `${t.name} (popularity: ${t.popularity})`));
       }
