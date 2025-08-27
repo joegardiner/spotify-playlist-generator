@@ -165,6 +165,10 @@ textarea:focus {
   min-width: 150px;
 }
 
+#clearBtn {
+  width: 40px;
+}
+
 @media (max-width: 600px) {
   .container {
     padding: 30px 20px;
