@@ -219,6 +219,7 @@ function displayTrackSelection() {
   `).join('');
   
   updateOutputFromSelection();
+  updatePlaylistDuration();
 }
 
 function toggleTrack(trackId, included) {
@@ -229,6 +230,7 @@ function toggleTrack(trackId, included) {
     }
   });
   updateOutputFromSelection();
+  updatePlaylistDuration();
 }
 
 let currentAudio = null;
@@ -401,7 +403,8 @@ document.getElementById("fetchBtn").onclick = async () => {
             image: t.album?.images?.[2]?.url || t.album?.images?.[0]?.url || '',
             preview_url: t.preview_url,
             id: t.id,
-            included: true
+            included: true,
+            duration_ms: t.duration_ms
           }));
           
           allTracks.push({
@@ -649,4 +652,33 @@ function setControlsEnabled(enabled) {
   document.querySelectorAll('.artist-input').forEach(input => {
     input.disabled = !enabled;
   });
+}
+
+function updatePlaylistDuration() {
+  const selectedTracks = [];
+  allTracks.forEach(artistGroup => {
+    artistGroup.tracks.forEach(track => {
+      if (track.included) selectedTracks.push(track);
+    });
+  });
+
+  // Sum durations (track.duration_ms should be available)
+  const totalMs = selectedTracks.reduce((sum, track) => sum + (track.duration_ms || 0), 0);
+
+  // Convert ms to h m s
+  const totalSec = Math.floor(totalMs / 1000);
+  const hours = Math.floor(totalSec / 3600);
+  const minutes = Math.floor((totalSec % 3600) / 60);
+  const seconds = totalSec % 60;
+
+  let durationStr = '';
+  if (hours > 0) {
+    durationStr += `${hours}h `;
+  }
+  if (minutes > 0 || hours > 0) {
+    durationStr += `${minutes}m `;
+  }
+  durationStr += `${seconds}s`;
+
+  document.getElementById('playlistDuration').textContent = `Playlist duration: ${durationStr.trim()}`;
 }

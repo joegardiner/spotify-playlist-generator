@@ -748,3 +748,10 @@ textarea#artistTextarea:disabled {
   transform: scale(1.08);
   background: #e9ffe6;
 }
+
+.playlist-duration {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 10px 0 14px 0;
+  color: #1db954;
+}
