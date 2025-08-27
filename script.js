@@ -309,8 +309,6 @@ document.getElementById("fetchBtn").onclick = async () => {
   addConsoleMessage(`Starting search for ${artistNames.length} artist(s) in market ${userMarket}: ${artistNames.join(', ')}`, 'info');
   
   try {
-    let allUris = [];
-    
     for (const artistName of artistNames) {
       updateArtistStatus(artistName, 'loading', 'Searching...');
       addConsoleMessage(`Searching for artist: ${artistName}`, 'info');
