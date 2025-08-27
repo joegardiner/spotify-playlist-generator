@@ -143,3 +143,27 @@ document.getElementById("fetchBtn").onclick = async () => {
     fetchBtn.textContent = "Get Top Tracks";
   }
 };
+
+// Copy button handler
+document.getElementById("copyBtn").onclick = async () => {
+  const textarea = document.getElementById("output");
+  const copyBtn = document.getElementById("copyBtn");
+  
+  if (!textarea.value.trim()) {
+    copyBtn.textContent = "Nothing to copy";
+    setTimeout(() => copyBtn.textContent = "Copy", 1500);
+    return;
+  }
+  
+  let success = false;
+  
+  // Method 1: Modern clipboard API
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(textarea.value);
+      success = true;
+    } catch (error) {
+      console.log("Clipboard API failed:", error);
+    }
+  }
+};
