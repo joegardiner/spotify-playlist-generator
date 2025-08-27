@@ -2,7 +2,7 @@ const clientId = "45bf1f4394ac46a3bdbfca451050ef10";
 const redirectUri = "https://joegardiner.github.io/spotify-playlist-generator/";
 let accessToken = null;
 
-// Generate code verifier and challenge for PKCE
+// PKCE functions
 function generateCodeVerifier() {
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
@@ -22,6 +22,7 @@ async function generateCodeChallenge(verifier) {
     .replace(/=/g, '');
 }
 
+// Login handler
 document.getElementById("loginBtn").onclick = async () => {
   const codeVerifier = generateCodeVerifier();
   const codeChallenge = await generateCodeChallenge(codeVerifier);
@@ -72,7 +73,33 @@ async function exchangeCodeForToken(code) {
     accessToken = data.access_token;
     document.getElementById("status").innerText = "Logged in";
     localStorage.removeItem('code_verifier');
-    // Clean up URL
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 }
+
+// Artist search
+document.getElementById("fetchBtn").onclick = async () => {
+  if (!accessToken) {
+    alert("Please login first");
+    return;
+  }
+  const artistName = document.getElementById("artistInput").value;
+  if (!artistName) return;
+  
+  let res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(artistName)}&type=artist&limit=1`, {
+    headers: { Authorization: "Bearer " + accessToken }
+  });
+  let data = await res.json();
+  let artistId = data.artists.items[0]?.id;
+  if (!artistId) {
+    document.getElementById("output").value = "Artist not found";
+    return;
+  }
+  
+  res = await fetch(`https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=US`, {
+    headers: { Authorization: "Bearer " + accessToken }
+  });
+  data = await res.json();
+  const uris = data.tracks.slice(0, 5).map(t => t.uri);
+  document.getElementById("output").value = uris.join("\n");
+};
