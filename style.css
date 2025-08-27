@@ -243,8 +243,8 @@ select option {
   font-size: 14px;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
-  transition: all 0.2s ease; /* Add transition */
-  transform-origin: center; /* Set transform origin for scaling */
+  transition: all 0.2s ease;
+  transform-origin: center;
 }
 
 .copy-btn:hover {
@@ -253,14 +253,13 @@ select option {
 
 .copy-btn.copied {
   background: rgba(29, 185, 84, 0.3);
-  transform: scale(0.95); /* Subtle scale down when clicked */
+  transform: scale(0.95);
 }
 
 .copy-btn:active {
-  transform: scale(0.9); /* More pronounced scale on click */
+  transform: scale(0.9);
 }
 
-/* Optional: Add a subtle pulse animation when copied */
 .copy-btn.copied {
   background: rgba(29, 185, 84, 0.3);
   animation: copyPulse 0.6s ease-out;
@@ -275,5 +274,85 @@ select option {
   }
   100% {
     transform: scale(1);
+  }
+}
+
+.label-with-tooltip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  cursor: help;
+  transition: all 0.2s ease;
+}
+
+.tooltip-icon:hover {
+  background: rgba(29, 185, 84, 0.3);
+  transform: scale(1.1);
+}
+
+.tooltip {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.95);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  width: 300px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.95);
+}
+
+.tooltip-container:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (max-width: 600px) {
+  .tooltip {
+    width: 250px;
+    left: 0;
+    transform: none;
+  }
+  
+  .tooltip::after {
+    left: 20px;
+    transform: none;
   }
 }
