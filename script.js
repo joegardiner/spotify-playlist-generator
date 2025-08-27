@@ -517,8 +517,8 @@ function setControlsEnabled(enabled) {
     artistInput.placeholder = 'Enter artist name';
     artistTextarea.placeholder = 'Enter artist names (comma or newline separated)';
   } else {
-    artistInput.placeholder = 'Login required...';
-    artistTextarea.placeholder = 'Login required...';
+    artistInput.placeholder = 'Login required';
+    artistTextarea.placeholder = 'Login required';
   }
   
   document.querySelectorAll('.artist-input').forEach(input => {

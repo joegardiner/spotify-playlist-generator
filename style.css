@@ -191,7 +191,6 @@ textarea:focus {
   margin-bottom: 20px;
   color: #1ed760;
   font-size: 1.2em;
-  font-weight: 600;
 }
 
 .options-grid {
@@ -334,6 +333,7 @@ select option {
   padding: 12px;
   border-radius: 8px;
   font-size: 12px;
+  text-align: left;
   line-height: 1.4;
   width: 300px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -481,21 +481,6 @@ button:disabled:hover {
   align-items: center;
   justify-content: center;
   gap: 15px;
-}
-
-.permissions-icon {
-  background: rgba(255, 193, 7, 0.3) !important;
-  border-color: rgba(255, 193, 7, 0.6) !important;
-  color: #ffc107 !important;
-}
-
-.permissions-icon:hover {
-  background: rgba(255, 193, 7, 0.5) !important;
-  border-color: rgba(255, 193, 7, 0.8) !important;
-}
-
-.permissions-tooltip {
-  width: 350px;
 }
 
 textarea#artistTextarea {

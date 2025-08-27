@@ -17,8 +17,8 @@
       <div class="login-row">
         <button id="loginBtn">Login with Spotify</button>
         <div class="tooltip-container">
-          <span class="tooltip-icon permissions-icon">?</span>
-          <div class="tooltip permissions-tooltip">
+          <span class="tooltip-icon">?</span>
+          <div class="tooltip">
             <strong>Required Permissions:</strong><br>
             • <strong>user-read-email:</strong> To identify your account<br>
             • <strong>user-read-private:</strong> To get your country/market for relevant track results<br><br>
@@ -57,7 +57,6 @@
             <option value="plays">Popularity</option>
           </select>
         </div>
-        </div>
         <div class="option-group">
           <label for="inputMode">Artist input mode:</label>
           <select id="inputMode" disabled>
@@ -71,12 +70,12 @@
     <div class="section artist-section">
       <div id="individualInputs">
         <div class="input-group">
-          <input type="text" id="artistInput" placeholder="Login required..." disabled>
+          <input type="text" id="artistInput" placeholder="Login required" disabled>
         </div>
       </div>
       <div id="bulkInputs" style="display: none;">
         <div class="input-group">
-          <textarea id="artistTextarea" placeholder="Login required..." rows="6" disabled></textarea>
+          <textarea id="artistTextarea" placeholder="Login required" rows="6" disabled></textarea>
         </div>
         <div class="bulk-help">
           Enter artist names separated by commas or new lines (e.g., "Artist 1, Artist 2" or one per line)
@@ -96,15 +95,10 @@
         <div class="tooltip-container">
           <span class="tooltip-icon">?</span>
           <div class="tooltip playlist-instructions">
-            <strong>How to create a Spotify playlist:</strong><br>
-            1. Copy the URIs below<br>
-            2. Open Spotify and create a new playlist<br>
-            3. Go to your playlist settings<br>
-            4. Look for "Import" or "Add songs" option<br>
-            5. Paste the URIs<br><br>
-            <strong>Alternative method:</strong><br>
-            • Use a playlist import tool like "Playlist Converter"<br>
-            • Or manually search and add each track (track names are in comments)
+            <strong>How to create a Spotify playlist:</strong><br><br>
+            1. Copy the text below<br>
+            2. In Spotify, either press CTRL + N or click File > New Playlist<br>
+            3. Press CTRL + V to paste the track list
           </div>
         </div>
       </div>
