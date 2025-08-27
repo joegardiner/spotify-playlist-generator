@@ -1,5 +1,5 @@
 const clientId = "45bf1f4394ac46a3bdbfca451050ef10";
-const redirectUri = "https://joegardiner.github.io/spotify-playlist-generator/";
+const redirectUri = window.location.origin + window.location.pathname;
 let accessToken = null;
 let userMarket = 'GB';
 let consoleMessages = [];
