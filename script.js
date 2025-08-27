@@ -214,7 +214,7 @@ function displayTrackSelection() {
             </svg>
           </a>
           <a class="youtube-icon-link"
-            href="https://www.youtube.com/results?search_query=${encodeURIComponent(track.name + ' - ' + track.artist)}"
+            href="https://www.youtube.com/results?search_query=${encodeURIComponent(track.artist + ' - ' + track.name)}"
             target="_blank"
             rel="noopener noreferrer"
             title="Search on YouTube">
