@@ -28,10 +28,19 @@
           </select>
         </div>
         <div class="option-group">
-          <label for="sortMethod">Sort by:</label>
+          <div class="label-with-tooltip">
+            <label for="sortMethod">Sort by:</label>
+            <div class="tooltip-container">
+              <span class="tooltip-icon">?</span>
+              <div class="tooltip">
+                <strong>Spotify Top Tracks:</strong> Uses Spotify's curated "top tracks" for each artist, which represents their most popular and recognizable songs.<br><br>
+                <strong>Popularity:</strong> Ranks tracks by Spotify's popularity algorithm based on total plays and recency. Songs being played a lot now will rank higher than older hits. Note: popularity values may lag by a few days.
+              </div>
+            </div>
+          </div>
           <select id="sortMethod">
             <option value="popularity" selected>Spotify Top Tracks</option>
-            <option value="plays">Most Played</option>
+            <option value="plays">Popularity</option>
           </select>
         </div>
       </div>
