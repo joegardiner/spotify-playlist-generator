@@ -167,3 +167,15 @@ document.getElementById("copyBtn").onclick = async () => {
     }
   }
 };
+
+// Add additional artist
+const addButton = document.createElement('button');
+addButton.textContent = '+';
+addButton.id = 'addArtistBtn';
+addButton.type = 'button';
+addButton.className = 'add-btn';
+
+const removeBtn = document.createElement('button');
+removeBtn.textContent = '×';
+removeBtn.type = 'button';
+removeBtn.className = 'remove-btn';
