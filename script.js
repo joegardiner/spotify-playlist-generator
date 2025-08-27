@@ -193,15 +193,12 @@ document.getElementById("fetchBtn").onclick = async () => {
   // Get options
   const trackCount = parseInt(document.getElementById("trackCount").value);
   const sortMethod = document.getElementById("sortMethod").value;
-  const marketOption = document.getElementById("market").value;
-  const market = marketOption === 'auto' ? userMarket : marketOption;
-  
   const fetchBtn = document.getElementById("fetchBtn");
   fetchBtn.disabled = true;
   fetchBtn.textContent = "Loading...";
   
   clearArtistStatus();
-  addConsoleMessage(`Starting search for ${artistNames.length} artist(s) in market ${market}: ${artistNames.join(', ')}`, 'info');
+  addConsoleMessage(`Starting search for ${artistNames.length} artist(s) in market ${userMarket}: ${artistNames.join(', ')}`, 'info');
   
   try {
     let allUris = [];
@@ -237,7 +234,7 @@ document.getElementById("fetchBtn").onclick = async () => {
         
         if (sortMethod === 'popularity') {
           // Use Spotify's top tracks endpoint
-          res = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=${market}`, {
+          res = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=${userMarket}`, {
             headers: { Authorization: "Bearer " + accessToken }
           });
           
@@ -248,7 +245,7 @@ document.getElementById("fetchBtn").onclick = async () => {
           
         } else if (sortMethod === 'plays') {
           // Get albums and search for tracks, then sort by popularity
-          res = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/albums?include_groups=album,single&market=${market}&limit=20`, {
+          res = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/albums?include_groups=album,single&market=${userMarket}&limit=20`, {
             headers: { Authorization: "Bearer " + accessToken }
           });
           
@@ -258,7 +255,7 @@ document.getElementById("fetchBtn").onclick = async () => {
           const albumIds = albumData.items.slice(0, 10).map(album => album.id);
           
           for (const albumId of albumIds) {
-            res = await fetch(`https://api.spotify.com/v1/albums/${albumId}/tracks?market=${market}`, {
+            res = await fetch(`https://api.spotify.com/v1/albums/${albumId}/tracks?market=${userMarket}`, {
               headers: { Authorization: "Bearer " + accessToken }
             });
             
