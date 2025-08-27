@@ -10,6 +10,9 @@
   <div class="container">
     <h1>Spotify Playlist Generator</h1>
     
+    <!-- Error messages container -->
+    <div id="errorContainer" class="error-container"></div>
+    
     <div class="section login-section">
       <button id="loginBtn">Login with Spotify</button>
       <div id="status" class="status"></div>
@@ -20,7 +23,7 @@
       <div class="options-grid">
         <div class="option-group">
           <label for="trackCount">Number of tracks:</label>
-          <select id="trackCount">
+          <select id="trackCount" disabled>
             <option value="5" selected>5 tracks</option>
             <option value="10">10 tracks</option>
             <option value="15">15 tracks</option>
@@ -34,11 +37,11 @@
               <span class="tooltip-icon">?</span>
               <div class="tooltip">
                 <strong>Top Tracks:</strong> Uses Spotify's curated "top tracks" for each artist, which represents their most popular and recognisable songs.<br><br>
-                <strong>Popularity:</strong> Ranks tracks by Spotify's popularity algorithm based on total plays and recency. Songs being played a lot now will rank higher than older hits. <i>Note: sorting by popularity will take longer to generate.</i>
+                <strong>Popularity:</strong> Ranks tracks by Spotify's popularity algorithm based on total plays and recency. Songs being played a lot now will rank higher than older hits.<br><i>Note: popularity option will take longer to generate</i>.
               </div>
             </div>
           </div>
-          <select id="sortMethod">
+          <select id="sortMethod" disabled>
             <option value="popularity" selected>Top Tracks</option>
             <option value="plays">Popularity</option>
           </select>
@@ -48,38 +51,26 @@
 
     <div class="section">
       <div class="input-group">
-        <input type="text" id="artistInput" placeholder="Enter artist name">
+        <input type="text" id="artistInput" placeholder="Login required" disabled>
       </div>
       <div class="button-row">
-        <button id="fetchBtn">Get Top Tracks</button>
+        <button id="fetchBtn" disabled>Get Top Tracks</button>
       </div>
     </div>
 
     <div class="section output-section">
-      <textarea id="output" placeholder="Track URIs will appear here..." readonly></textarea>
-      <button id="copyBtn" class="copy-btn">Copy</button>
+      <textarea id="output" placeholder="Track URIs will appear here" readonly></textarea>
+      <button id="copyBtn" class="copy-btn" disabled>Copy</button>
     </div>
+  </div>
 
-    <div class="section todo-section">
-      <h3>TODO / Improvements</h3>
-      <br>
-      <ul>
-        <li>Fix artist inputs to always show new input with + button on last input</li>
-        <li>Togglable console or messages section to show any issues and show processing</li>
-        <li>Add "Clear All" button</li>
-        <li>Fix underlay on some areas</li>
-        <li>Replace login button with successful logged-in message or disable after login</li>
-        <li>Show names / album art / song preview of songs</li>
-        <li>Add option to toggle / remove selected songs</li>
-        <li>Either add selectable market, or increase permissions</li>
-        <li>Add information near login button to explain needed permissions</li>
-        <li>Add information near URI section to explain steps to add songs to playlist</li>
-        <li>Add option to switch artist inputs to textarea and be comma separated or new line separated</li>
-        <li>Disable inputs until logged in</li>
-        <li>Add error messages to page instead of browser modals</li>
-        <li>Add outline to ? icon</li>
-      </ul>
+  <!-- Console drawer -->
+  <div class="console-drawer" id="consoleDrawer">
+    <div class="console-header" id="consoleHeader">
+      <span>Console Messages</span>
+      <span class="console-toggle">▲</span>
     </div>
+    <div class="console-content" id="consoleContent"></div>
   </div>
 
   <script src="script.js"></script>
