@@ -84,9 +84,18 @@ document.getElementById("fetchBtn").onclick = async () => {
     return;
   }
   
-  const artistName = document.getElementById("artistInput").value.trim();
-  if (!artistName) {
-    alert("Please enter an artist name");
+  // Get all artist inputs
+  const artistInputs = [
+    document.getElementById("artistInput"),
+    ...document.querySelectorAll('.artist-input')
+  ];
+  
+  const artistNames = artistInputs
+    .map(input => input.value.trim())
+    .filter(name => name.length > 0);
+  
+  if (artistNames.length === 0) {
+    alert("Please enter at least one artist name");
     return;
   }
   
@@ -95,46 +104,50 @@ document.getElementById("fetchBtn").onclick = async () => {
   fetchBtn.textContent = "Loading...";
   
   try {
-    // Search artist with more specific query
-    let res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(`artist:"${artistName}"`)}&type=artist&limit=5`, {
-      headers: { Authorization: "Bearer " + accessToken }
-    });
+    let allUris = [];
     
-    if (!res.ok) throw new Error(`Search failed: ${res.status}`);
-    
-    let data = await res.json();
-    
-    if (!data.artists.items.length) {
-      document.getElementById("output").value = "Artist not found";
-      return;
+    for (const artistName of artistNames) {
+      // Search artist
+      let res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(`artist:"${artistName}"`)}&type=artist&limit=5`, {
+        headers: { Authorization: "Bearer " + accessToken }
+      });
+      
+      if (!res.ok) throw new Error(`Search failed for ${artistName}: ${res.status}`);
+      
+      let data = await res.json();
+      
+      if (!data.artists.items.length) {
+        console.log(`Artist not found: ${artistName}`);
+        continue;
+      }
+      
+      // Find exact match first, then best match
+      let artist = data.artists.items.find(a => 
+        a.name.toLowerCase() === artistName.toLowerCase()
+      ) || data.artists.items[0];
+      
+      console.log(`Found artist: ${artist.name} for search: ${artistName}`);
+      
+      // Get top tracks
+      res = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=US`, {
+        headers: { Authorization: "Bearer " + accessToken }
+      });
+      
+      if (!res.ok) throw new Error(`Failed to fetch tracks for ${artist.name}: ${res.status}`);
+      
+      data = await res.json();
+      
+      if (data.tracks.length > 0) {
+        const uris = data.tracks.slice(0, 5).map(t => t.uri);
+        allUris.push(`# ${artist.name}`, ...uris, '');
+      }
     }
     
-    // Find exact match first, then best match
-    let artist = data.artists.items.find(a => 
-      a.name.toLowerCase() === artistName.toLowerCase()
-    ) || data.artists.items[0];
-    
-    console.log(`Found artist: ${artist.name} (ID: ${artist.id})`);
-    
-    // Get top tracks
-    res = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=US`, {
-      headers: { Authorization: "Bearer " + accessToken }
-    });
-    
-    if (!res.ok) throw new Error(`Failed to fetch tracks: ${res.status}`);
-    
-    data = await res.json();
-    
-    if (!data.tracks.length) {
-      document.getElementById("output").value = "No top tracks found for this artist";
-      return;
+    if (allUris.length === 0) {
+      document.getElementById("output").value = "No tracks found for any of the specified artists";
+    } else {
+      document.getElementById("output").value = allUris.join("\n");
     }
-    
-    // Log track names to verify
-    console.log("Top tracks:", data.tracks.map(t => `${t.name} by ${t.artists[0].name}`));
-    
-    const uris = data.tracks.slice(0, 5).map(t => t.uri);
-    document.getElementById("output").value = uris.join("\n");
     
   } catch (error) {
     document.getElementById("output").value = "Error: " + error.message;
@@ -168,14 +181,52 @@ document.getElementById("copyBtn").onclick = async () => {
   }
 };
 
-// Add additional artist
+// Add multiple artist functionality
+let artistCount = 1;
+
+// Create + button and insert it after the first input
 const addButton = document.createElement('button');
 addButton.textContent = '+';
 addButton.id = 'addArtistBtn';
 addButton.type = 'button';
 addButton.className = 'add-btn';
 
-const removeBtn = document.createElement('button');
-removeBtn.textContent = '×';
-removeBtn.type = 'button';
-removeBtn.className = 'remove-btn';
+const firstInputGroup = document.querySelector('.input-group');
+firstInputGroup.appendChild(addButton);
+
+// Add artist input handler
+document.getElementById('addArtistBtn').onclick = () => {
+  artistCount++;
+  
+  const inputGroup = document.createElement('div');
+  inputGroup.className = 'input-group artist-input-group';
+  
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = `Enter artist name ${artistCount}`;
+  input.className = 'artist-input';
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      document.getElementById('fetchBtn').click();
+    }
+  });
+  
+  const removeBtn = document.createElement('button');
+  removeBtn.textContent = '×';
+  removeBtn.type = 'button';
+  removeBtn.className = 'remove-btn';
+  
+  removeBtn.onclick = () => {
+    inputGroup.remove();
+    artistCount--;
+  };
+  
+  inputGroup.appendChild(input);
+  inputGroup.appendChild(removeBtn);
+  
+  // Insert before the button row
+  const buttonRow = document.querySelector('.button-row');
+  buttonRow.parentNode.insertBefore(inputGroup, buttonRow);
+  
+  input.focus();
+};
