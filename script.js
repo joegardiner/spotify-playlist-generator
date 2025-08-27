@@ -2,6 +2,50 @@ const clientId = "45bf1f4394ac46a3bdbfca451050ef10";
 const redirectUri = "https://joegardiner.github.io/spotify-playlist-generator/";
 let accessToken = null;
 
+// Console drawer functionality
+let consoleMessages = [];
+
+function addConsoleMessage(message, type = 'info') {
+  const timestamp = new Date().toLocaleTimeString();
+  consoleMessages.push({ message, type, timestamp });
+  updateConsoleDisplay();
+}
+
+function updateConsoleDisplay() {
+  const content = document.getElementById('consoleContent');
+  content.innerHTML = consoleMessages.map(msg => 
+    `<div class="console-message ${msg.type}">[${msg.timestamp}] ${msg.message}</div>`
+  ).join('');
+  content.scrollTop = content.scrollHeight;
+}
+
+// Toggle console drawer
+document.getElementById('consoleHeader').onclick = () => {
+  const drawer = document.getElementById('consoleDrawer');
+  drawer.classList.toggle('expanded');
+};
+
+// Error message functionality
+function showError(message) {
+  const container = document.getElementById('errorContainer');
+  const errorDiv = document.createElement('div');
+  errorDiv.className = 'error-message';
+  errorDiv.innerHTML = `
+    ${message}
+    <button class="error-close" onclick="this.parentElement.remove(); checkErrorContainer();">×</button>
+  `;
+  container.appendChild(errorDiv);
+  container.style.display = 'block';
+  addConsoleMessage(`Error: ${message}`, 'error');
+}
+
+function checkErrorContainer() {
+  const container = document.getElementById('errorContainer');
+  if (container.children.length === 0) {
+    container.style.display = 'none';
+  }
+}
+
 // PKCE functions
 function generateCodeVerifier() {
   const array = new Uint8Array(32);
@@ -327,50 +371,6 @@ document.getElementById('addArtistBtn').onclick = () => {
   
   input.focus();
 };
-
-// Console drawer functionality
-let consoleMessages = [];
-
-function addConsoleMessage(message, type = 'info') {
-  const timestamp = new Date().toLocaleTimeString();
-  consoleMessages.push({ message, type, timestamp });
-  updateConsoleDisplay();
-}
-
-function updateConsoleDisplay() {
-  const content = document.getElementById('consoleContent');
-  content.innerHTML = consoleMessages.map(msg => 
-    `<div class="console-message ${msg.type}">[${msg.timestamp}] ${msg.message}</div>`
-  ).join('');
-  content.scrollTop = content.scrollHeight;
-}
-
-// Toggle console drawer
-document.getElementById('consoleHeader').onclick = () => {
-  const drawer = document.getElementById('consoleDrawer');
-  drawer.classList.toggle('expanded');
-};
-
-// Error message functionality
-function showError(message) {
-  const container = document.getElementById('errorContainer');
-  const errorDiv = document.createElement('div');
-  errorDiv.className = 'error-message';
-  errorDiv.innerHTML = `
-    ${message}
-    <button class="error-close" onclick="this.parentElement.remove(); checkErrorContainer();">×</button>
-  `;
-  container.appendChild(errorDiv);
-  container.style.display = 'block';
-  addConsoleMessage(`Error: ${message}`, 'error');
-}
-
-function checkErrorContainer() {
-  const container = document.getElementById('errorContainer');
-  if (container.children.length === 0) {
-    container.style.display = 'none';
-  }
-}
 
 // Enable/disable controls based on login status
 function setControlsEnabled(enabled) {
