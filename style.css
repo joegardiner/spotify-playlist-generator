@@ -527,7 +527,7 @@ textarea#artistTextarea:disabled {
 .bulk-help {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.6);
-  margin: -5px 5px 25px;
+  margin: -5px 5px 2px;
   font-style: italic;
   text-align: center;
 }
@@ -630,4 +630,107 @@ textarea#artistTextarea:disabled {
   .playlist-instructions {
     width: 280px;
   }
+}
+
+.track-selection-section {
+  max-height: 800px;
+  overflow-y: auto;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 10px 20px 0px;
+}
+
+.selection-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.control-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  outline: 1px solid rgba(255, 255, 255, 0.2);
+  outline-color: #7c7676;
+}
+
+.track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.artist-group {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.artist-group h4 {
+  color: #1ed760;
+  margin-bottom: 15px;
+  font-size: 1.1em;
+}
+
+.track-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  margin-bottom: 10px;
+}
+
+.track-item.disabled {
+  opacity: 0.5;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.track-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #1db954;
+}
+
+.track-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  object-fit: cover;
+}
+
+.track-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.track-name {
+  font-weight: 600;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.track-details {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.preview-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: rgba(29, 185, 84, 0.2);
+  border: 1px solid rgba(29, 185, 84, 0.5);
+  min-width: 60px;
+}
+
+.preview-btn:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.5);
 }
