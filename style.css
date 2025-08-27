@@ -24,6 +24,7 @@ body {
   width: 100%;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 40px;
 }
 
 h1 {
@@ -754,4 +755,30 @@ textarea#artistTextarea:disabled {
   font-weight: 500;
   margin: 10px 0 14px 0;
   color: #1db954;
+}
+
+.youtube-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.15);
+  transition: box-shadow 0.2s, transform 0.2s;
+  margin-left: 8px;
+  text-decoration: none;
+}
+
+.youtube-icon-link svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
+.youtube-icon-link:hover {
+  box-shadow: 0 4px 16px rgba(255, 0, 0, 0.25);
+  transform: scale(1.08);
+  background: #ffeaea;
 }
