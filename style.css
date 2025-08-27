@@ -356,3 +356,16 @@ select option {
     transform: none;
   }
 }
+
+.todo-section {
+  border-top: 2px dashed #999;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.todo-section ul {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+}
