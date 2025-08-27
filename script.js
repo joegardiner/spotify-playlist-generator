@@ -382,44 +382,35 @@ function parseArtistNames() {
 }
 
 // Copy button handler
-document.getElementById("copyBtn").onclick = () => {
+document.getElementById("copyBtn").onclick = async () => {
   const textarea = document.getElementById("output");
   const copyBtn = document.getElementById("copyBtn");
-  
+
   if (!textarea.value.trim()) {
     return;
   }
-  
-  // Add immediate visual feedback
+
   copyBtn.style.transform = "scale(0.9)";
-  
-  // Remove readonly temporarily, select, copy, restore readonly
-  textarea.removeAttribute('readonly');
-  textarea.select();
-  textarea.setSelectionRange(0, 99999);
-  
+
   try {
-    const success = document.execCommand('copy');
-    copyBtn.textContent = success ? "Copied!" : "Failed";
+    await navigator.clipboard.writeText(textarea.value);
+    copyBtn.textContent = "Copied!";
     copyBtn.classList.add("copied");
-    
     setTimeout(() => {
       copyBtn.textContent = "Copy";
       copyBtn.classList.remove("copied");
-      copyBtn.style.transform = ""; // Reset transform
+      copyBtn.style.transform = "";
     }, 1500);
   } catch (error) {
     copyBtn.textContent = "Failed";
     setTimeout(() => {
       copyBtn.textContent = "Copy";
-      copyBtn.style.transform = ""; // Reset transform
+      copyBtn.style.transform = "";
     }, 1500);
   }
-  
-  textarea.setAttribute('readonly', 'readonly');
+
   textarea.blur();
-  
-  // Reset scale after brief delay
+
   setTimeout(() => {
     copyBtn.style.transform = "";
   }, 150);
