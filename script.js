@@ -213,27 +213,47 @@ document.getElementById("fetchBtn").onclick = async () => {
 };
 
 // Copy button handler
-document.getElementById("copyBtn").onclick = async () => {
+document.getElementById("copyBtn").onclick = () => {
   const textarea = document.getElementById("output");
   const copyBtn = document.getElementById("copyBtn");
   
   if (!textarea.value.trim()) {
-    copyBtn.textContent = "Nothing to copy";
-    setTimeout(() => copyBtn.textContent = "Copy", 1500);
     return;
   }
   
-  let success = false;
+  // Add immediate visual feedback
+  copyBtn.style.transform = "scale(0.9)";
   
-  // Method 1: Modern clipboard API
-  if (navigator.clipboard && window.isSecureContext) {
-    try {
-      await navigator.clipboard.writeText(textarea.value);
-      success = true;
-    } catch (error) {
-      console.log("Clipboard API failed:", error);
-    }
+  // Remove readonly temporarily, select, copy, restore readonly
+  textarea.removeAttribute('readonly');
+  textarea.select();
+  textarea.setSelectionRange(0, 99999);
+  
+  try {
+    const success = document.execCommand('copy');
+    copyBtn.textContent = success ? "Copied!" : "Failed";
+    copyBtn.classList.add("copied");
+    
+    setTimeout(() => {
+      copyBtn.textContent = "Copy";
+      copyBtn.classList.remove("copied");
+      copyBtn.style.transform = ""; // Reset transform
+    }, 1500);
+  } catch (error) {
+    copyBtn.textContent = "Failed";
+    setTimeout(() => {
+      copyBtn.textContent = "Copy";
+      copyBtn.style.transform = ""; // Reset transform
+    }, 1500);
   }
+  
+  textarea.setAttribute('readonly', 'readonly');
+  textarea.blur();
+  
+  // Reset scale after brief delay
+  setTimeout(() => {
+    copyBtn.style.transform = "";
+  }, 150);
 };
 
 // Add multiple artist functionality
