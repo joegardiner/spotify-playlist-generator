@@ -1,8 +1,7 @@
 const clientId = "45bf1f4394ac46a3bdbfca451050ef10";
 const redirectUri = "https://joegardiner.github.io/spotify-playlist-generator/";
 let accessToken = null;
-
-// Console drawer functionality
+let userMarket = 'GB';
 let consoleMessages = [];
 
 function addConsoleMessage(message, type = 'info') {
@@ -74,20 +73,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Login handler
 document.getElementById("loginBtn").onclick = async () => {
-  const codeVerifier = generateCodeVerifier();
-  const codeChallenge = await generateCodeChallenge(codeVerifier);
-  
-  localStorage.setItem('code_verifier', codeVerifier);
-  
-  const authUrl = "https://accounts.spotify.com/authorize"
-    + "?response_type=code"
-    + "&client_id=" + encodeURIComponent(clientId)
-    + "&redirect_uri=" + encodeURIComponent(redirectUri)
-    + "&code_challenge_method=S256"
-    + "&code_challenge=" + codeChallenge
-    + "&scope=" + encodeURIComponent("user-read-email");
-  
-  window.location = authUrl;
+  try {
+    const codeVerifier = generateCodeVerifier();
+    const codeChallenge = await generateCodeChallenge(codeVerifier);
+    
+    localStorage.setItem('code_verifier', codeVerifier);
+    
+    const authUrl = "https://accounts.spotify.com/authorize"
+      + "?response_type=code"
+      + "&client_id=" + encodeURIComponent(clientId)
+      + "&redirect_uri=" + encodeURIComponent(redirectUri)
+      + "&code_challenge_method=S256"
+      + "&code_challenge=" + codeChallenge
+      + "&scope=" + encodeURIComponent("user-read-email user-read-private");
+    
+    addConsoleMessage('Redirecting to Spotify authorization...', 'info');
+    window.location = authUrl;
+  } catch (error) {
+    showError(`Login initialization failed: ${error.message}`);
+  }
 };
 
 // Handle authorization code exchange
@@ -136,6 +140,42 @@ async function exchangeCodeForToken(code) {
   }
 }
 
+// Get user's market after successful login
+async function getUserMarket() {
+  try {
+    const response = await fetch('https://api.spotify.com/v1/me', {
+      headers: { Authorization: "Bearer " + accessToken }
+    });
+    
+    if (response.ok) {
+      const userData = await response.json();
+      userMarket = userData.country || 'GB';
+      addConsoleMessage(`Detected user market: ${userMarket}`, 'info');
+      return userMarket;
+    }
+  } catch (error) {
+    addConsoleMessage(`Could not get user market, using GB as default: ${error.message}`, 'error');
+  }
+  return 'GB';
+}
+
+// Update login button on success
+function updateLoginSuccess() {
+  const loginBtn = document.getElementById('loginBtn');
+  const statusEl = document.getElementById('status');
+  
+  loginBtn.textContent = '✓ Logged in to Spotify';
+  loginBtn.disabled = true;
+  loginBtn.classList.add('login-btn-success');
+  statusEl.classList.add('logged-in');
+  
+  setControlsEnabled(true);
+  addConsoleMessage('Successfully logged in to Spotify', 'success');
+  
+  // Get user's market
+  getUserMarket();
+}
+
 // Artist search
 document.getElementById("fetchBtn").onclick = async () => {
   if (!accessToken) {
@@ -143,15 +183,7 @@ document.getElementById("fetchBtn").onclick = async () => {
     return;
   }
   
-  // Get all artist inputs
-  const artistInputs = [
-    document.getElementById("artistInput"),
-    ...document.querySelectorAll('.artist-input')
-  ];
-  
-  const artistNames = artistInputs
-    .map(input => input.value.trim())
-    .filter(name => name.length > 0);
+  const artistNames = parseArtistNames();
   
   if (artistNames.length === 0) {
     showError("Please enter at least one artist name");
@@ -161,103 +193,117 @@ document.getElementById("fetchBtn").onclick = async () => {
   // Get options
   const trackCount = parseInt(document.getElementById("trackCount").value);
   const sortMethod = document.getElementById("sortMethod").value;
+  const marketOption = document.getElementById("market").value;
+  const market = marketOption === 'auto' ? userMarket : marketOption;
   
   const fetchBtn = document.getElementById("fetchBtn");
   fetchBtn.disabled = true;
   fetchBtn.textContent = "Loading...";
   
-  addConsoleMessage(`Starting search for ${artistNames.length} artist(s): ${artistNames.join(', ')}`, 'info');
+  clearArtistStatus();
+  addConsoleMessage(`Starting search for ${artistNames.length} artist(s) in market ${market}: ${artistNames.join(', ')}`, 'info');
   
   try {
     let allUris = [];
     
     for (const artistName of artistNames) {
+      updateArtistStatus(artistName, 'loading', 'Searching...');
       addConsoleMessage(`Searching for artist: ${artistName}`, 'info');
-      // Search artist
-      fetchBtn.textContent = `Processing ${artistName}`;
       
-      let res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(`artist:"${artistName}"`)}&type=artist&limit=5`, {
-        headers: { Authorization: "Bearer " + accessToken }
-      });
-      
-      if (!res.ok) throw new Error(`Search failed for ${artistName}: ${res.status}`);
-      
-      let data = await res.json();
-      
-      if (!data.artists.items.length) {
-        addConsoleMessage(`Artist not found: ${artistName}`, 'error');
-        continue;
-      }
-      
-      // Find exact match first, then best match
-      let artist = data.artists.items.find(a => 
-        a.name.toLowerCase() === artistName.toLowerCase()
-      ) || data.artists.items[0];
-      
-      addConsoleMessage(`Found artist: ${artist.name}`, 'success');
-      
-      let tracks = [];
-      
-      if (sortMethod === 'popularity') {
-        // Use Spotify's top tracks endpoint
-        res = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=US`, {
+      try {
+        // Search artist
+        let res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(`artist:"${artistName}"`)}&type=artist&limit=5`, {
           headers: { Authorization: "Bearer " + accessToken }
         });
         
-        if (!res.ok) throw new Error(`Failed to fetch tracks for ${artist.name}: ${res.status}`);
+        if (!res.ok) throw new Error(`Search failed: ${res.status}`);
         
-        data = await res.json();
-        tracks = data.tracks || [];
+        let data = await res.json();
         
-      } else if (sortMethod === 'plays') {
-        // Get albums and search for tracks, then sort by popularity
-        res = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/albums?include_groups=album,single&market=US&limit=20`, {
-          headers: { Authorization: "Bearer " + accessToken }
-        });
+        if (!data.artists.items.length) {
+          updateArtistStatus(artistName, 'error', 'Not found');
+          addConsoleMessage(`Artist not found: ${artistName}`, 'error');
+          continue;
+        }
         
-        if (!res.ok) throw new Error(`Failed to fetch albums for ${artist.name}: ${res.status}`);
+        let artist = data.artists.items.find(a => 
+          a.name.toLowerCase() === artistName.toLowerCase()
+        ) || data.artists.items[0];
         
-        const albumData = await res.json();
-        const albumIds = albumData.items.slice(0, 10).map(album => album.id); // Limit to prevent too many requests
+        updateArtistStatus(artistName, 'loading', 'Getting tracks...');
+        addConsoleMessage(`Found artist: ${artist.name}`, 'success');
         
-        // Get tracks from albums
-        for (const albumId of albumIds) {
-          res = await fetch(`https://api.spotify.com/v1/albums/${albumId}/tracks?market=US`, {
+        let tracks = [];
+        
+        if (sortMethod === 'popularity') {
+          // Use Spotify's top tracks endpoint
+          res = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=${market}`, {
             headers: { Authorization: "Bearer " + accessToken }
           });
           
-          if (res.ok) {
-            const trackData = await res.json();
+          if (!res.ok) throw new Error(`Failed to fetch tracks: ${res.status}`);
+          
+          data = await res.json();
+          tracks = data.tracks || [];
+          
+        } else if (sortMethod === 'plays') {
+          // Get albums and search for tracks, then sort by popularity
+          res = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/albums?include_groups=album,single&market=${market}&limit=20`, {
+            headers: { Authorization: "Bearer " + accessToken }
+          });
+          
+          if (!res.ok) throw new Error(`Failed to fetch albums: ${res.status}`);
+          
+          const albumData = await res.json();
+          const albumIds = albumData.items.slice(0, 10).map(album => album.id);
+          
+          for (const albumId of albumIds) {
+            res = await fetch(`https://api.spotify.com/v1/albums/${albumId}/tracks?market=${market}`, {
+              headers: { Authorization: "Bearer " + accessToken }
+            });
             
-            // Get full track details (including popularity) for each track
-            const trackIds = trackData.items.slice(0, 10).map(track => track.id);
-            if (trackIds.length > 0) {
-              res = await fetch(`https://api.spotify.com/v1/tracks?ids=${trackIds.join(',')}`, {
-                headers: { Authorization: "Bearer " + accessToken }
-              });
+            if (res.ok) {
+              const trackData = await res.json();
+              const trackIds = trackData.items.slice(0, 10).map(track => track.id);
               
-              if (res.ok) {
-                const fullTrackData = await res.json();
-                tracks.push(...fullTrackData.tracks.filter(track => 
-                  track.artists.some(trackArtist => trackArtist.id === artist.id)
-                ));
+              if (trackIds.length > 0) {
+                res = await fetch(`https://api.spotify.com/v1/tracks?ids=${trackIds.join(',')}`, {
+                  headers: { Authorization: "Bearer " + accessToken }
+                });
+                
+                if (res.ok) {
+                  const fullTrackData = await res.json();
+                  tracks.push(...fullTrackData.tracks.filter(track => 
+                    track.artists.some(trackArtist => trackArtist.id === artist.id)
+                  ));
+                }
               }
             }
           }
+          
+          const uniqueTracks = tracks.filter((track, index, self) => 
+            index === self.findIndex(t => t.id === track.id)
+          );
+          
+          tracks = uniqueTracks.sort((a, b) => b.popularity - a.popularity);
         }
         
-        // Remove duplicates and sort by popularity
-        const uniqueTracks = tracks.filter((track, index, self) => 
-          index === self.findIndex(t => t.id === track.id)
-        );
+        if (tracks.length > 0) {
+          const uris = tracks.slice(0, trackCount).map(t => 
+            `${t.uri} // ${t.name} - ${t.artists[0].name}`
+          );
+          allUris.push(`# ${artist.name}`, ...uris, '');
+          
+          updateArtistStatus(artistName, 'success', `${Math.min(tracks.length, trackCount)} tracks found`);
+          addConsoleMessage(`${artist.name}: Found ${Math.min(tracks.length, trackCount)} tracks`, 'success');
+        } else {
+          updateArtistStatus(artistName, 'error', 'No tracks found');
+          addConsoleMessage(`${artist.name}: No tracks found`, 'error');
+        }
         
-        tracks = uniqueTracks.sort((a, b) => b.popularity - a.popularity);
-      }
-      
-      if (tracks.length > 0) {
-        const uris = tracks.slice(0, trackCount).map(t => t.uri);
-        allUris.push(`# ${artist.name}`, ...uris, '');
-        console.log(`${artist.name} tracks:`, tracks.slice(0, trackCount).map(t => `${t.name} (popularity: ${t.popularity})`));
+      } catch (artistError) {
+        updateArtistStatus(artistName, 'error', artistError.message);
+        addConsoleMessage(`Error processing ${artistName}: ${artistError.message}`, 'error');
       }
     }
     
@@ -266,7 +312,8 @@ document.getElementById("fetchBtn").onclick = async () => {
       showError("No tracks found for any of the specified artists");
     } else {
       document.getElementById("output").value = allUris.join("\n");
-      addConsoleMessage(`Successfully generated playlist with ${allUris.filter(line => line.startsWith('spotify:')).length} tracks`, 'success');
+      const trackCount = allUris.filter(line => line.startsWith('spotify:')).length;
+      addConsoleMessage(`Successfully generated playlist with ${trackCount} tracks`, 'success');
     }
     
   } catch (error) {
@@ -278,6 +325,61 @@ document.getElementById("fetchBtn").onclick = async () => {
     fetchBtn.textContent = "Get Top Tracks";
   }
 };
+
+// Artist status management
+function updateArtistStatus(artistName, status, message = '') {
+  const statusContainer = document.getElementById('artistStatus');
+  statusContainer.classList.add('visible');
+  
+  let statusItem = document.querySelector(`[data-artist="${artistName}"]`);
+  if (!statusItem) {
+    statusItem = document.createElement('div');
+    statusItem.className = 'artist-status-item';
+    statusItem.setAttribute('data-artist', artistName);
+    statusContainer.appendChild(statusItem);
+  }
+  
+  const iconClass = status === 'success' ? 'success' : status === 'error' ? 'error' : 'loading';
+  const icon = status === 'success' ? '✓' : status === 'error' ? '✗' : '⋯';
+  
+  statusItem.innerHTML = `
+    <div class="status-icon ${iconClass}">${icon}</div>
+    <div class="artist-name">${artistName}</div>
+    <div class="status-message">${message}</div>
+  `;
+}
+
+function clearArtistStatus() {
+  const statusContainer = document.getElementById('artistStatus');
+  statusContainer.innerHTML = '';
+  statusContainer.classList.remove('visible');
+}
+
+// Helper function to parse artist names
+function parseArtistNames() {
+  const inputMode = document.getElementById('inputMode').value;
+  
+  if (inputMode === 'bulk') {
+    const text = document.getElementById('artistTextarea').value.trim();
+    if (!text) return [];
+    
+    // Split by comma or newline, clean up each name
+    return text
+      .split(/[,\n]/)
+      .map(name => name.trim())
+      .filter(name => name.length > 0);
+  } else {
+    // Individual inputs
+    const artistInputs = [
+      document.getElementById("artistInput"),
+      ...document.querySelectorAll('.artist-input')
+    ];
+    
+    return artistInputs
+      .map(input => input.value.trim())
+      .filter(name => name.length > 0);
+  }
+}
 
 // Copy button handler
 document.getElementById("copyBtn").onclick = () => {
@@ -372,12 +474,30 @@ document.getElementById('addArtistBtn').onclick = () => {
   input.focus();
 };
 
+// Add input mode toggle functionality
+document.getElementById('inputMode').addEventListener('change', function() {
+  const individualInputs = document.getElementById('individualInputs');
+  const bulkInputs = document.getElementById('bulkInputs');
+  
+  if (this.value === 'bulk') {
+    individualInputs.style.display = 'none';
+    bulkInputs.style.display = 'block';
+    document.getElementById('artistTextarea').placeholder = 'Enter artist names (comma or newline separated)';
+  } else {
+    individualInputs.style.display = 'block';
+    bulkInputs.style.display = 'none';
+  }
+});
+
 // Enable/disable controls based on login status
 function setControlsEnabled(enabled) {
   const controls = [
     'artistInput',
+    'artistTextarea',
     'trackCount', 
     'sortMethod',
+    'market',
+    'inputMode',
     'fetchBtn',
     'copyBtn',
     'addArtistBtn'
@@ -390,31 +510,18 @@ function setControlsEnabled(enabled) {
     }
   });
   
-  // Update artist input placeholder
   const artistInput = document.getElementById('artistInput');
+  const artistTextarea = document.getElementById('artistTextarea');
+  
   if (enabled) {
     artistInput.placeholder = 'Enter artist name';
+    artistTextarea.placeholder = 'Enter artist names (comma or newline separated)';
   } else {
     artistInput.placeholder = 'Login required...';
+    artistTextarea.placeholder = 'Login required...';
   }
   
-  // Update dynamically added inputs
   document.querySelectorAll('.artist-input').forEach(input => {
     input.disabled = !enabled;
   });
-}
-
-// Update login button on success
-function updateLoginSuccess() {
-  const loginBtn = document.getElementById('loginBtn');
-  const statusEl = document.getElementById('status');
-  
-  loginBtn.textContent = '✓ Logged in to Spotify';
-  loginBtn.disabled = true;
-  loginBtn.classList.add('login-btn-success');
-  
-  statusEl.classList.add('logged-in');
-  
-  setControlsEnabled(true);
-  addConsoleMessage('Successfully logged in to Spotify', 'success');
 }
