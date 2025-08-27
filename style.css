@@ -481,6 +481,14 @@ button:disabled:hover {
   transform: none !important;
 }
 
+.login-btn-success:disabled {
+  opacity: 0.95;
+  background: linear-gradient(45deg, #28a745, #34ce57) !important;
+  color: #fff !important;
+  cursor: not-allowed !important;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+}
+
 .login-row {
   display: flex;
   align-items: center;
@@ -545,6 +553,10 @@ textarea#artistTextarea:disabled {
 
 .artist-status-item:last-child {
   border-bottom: none;
+}
+
+.status:empty {
+  display: none;
 }
 
 .status-icon {
