@@ -99,6 +99,10 @@ document.getElementById("fetchBtn").onclick = async () => {
     return;
   }
   
+  // Get options
+  const trackCount = parseInt(document.getElementById("trackCount").value);
+  const sortMethod = document.getElementById("sortMethod").value;
+  
   const fetchBtn = document.getElementById("fetchBtn");
   fetchBtn.disabled = true;
   fetchBtn.textContent = "Loading...";
@@ -128,18 +132,68 @@ document.getElementById("fetchBtn").onclick = async () => {
       
       console.log(`Found artist: ${artist.name} for search: ${artistName}`);
       
-      // Get top tracks
-      res = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=US`, {
-        headers: { Authorization: "Bearer " + accessToken }
-      });
+      let tracks = [];
       
-      if (!res.ok) throw new Error(`Failed to fetch tracks for ${artist.name}: ${res.status}`);
+      if (sortMethod === 'popularity') {
+        // Use Spotify's top tracks endpoint
+        res = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=US`, {
+          headers: { Authorization: "Bearer " + accessToken }
+        });
+        
+        if (!res.ok) throw new Error(`Failed to fetch tracks for ${artist.name}: ${res.status}`);
+        
+        data = await res.json();
+        tracks = data.tracks || [];
+        
+      } else if (sortMethod === 'plays') {
+        // Get albums and search for tracks, then sort by popularity
+        res = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/albums?include_groups=album,single&market=US&limit=20`, {
+          headers: { Authorization: "Bearer " + accessToken }
+        });
+        
+        if (!res.ok) throw new Error(`Failed to fetch albums for ${artist.name}: ${res.status}`);
+        
+        const albumData = await res.json();
+        const albumIds = albumData.items.slice(0, 10).map(album => album.id); // Limit to prevent too many requests
+        
+        // Get tracks from albums
+        for (const albumId of albumIds) {
+          res = await fetch(`https://api.spotify.com/v1/albums/${albumId}/tracks?market=US`, {
+            headers: { Authorization: "Bearer " + accessToken }
+          });
+          
+          if (res.ok) {
+            const trackData = await res.json();
+            
+            // Get full track details (including popularity) for each track
+            const trackIds = trackData.items.slice(0, 10).map(track => track.id);
+            if (trackIds.length > 0) {
+              res = await fetch(`https://api.spotify.com/v1/tracks?ids=${trackIds.join(',')}`, {
+                headers: { Authorization: "Bearer " + accessToken }
+              });
+              
+              if (res.ok) {
+                const fullTrackData = await res.json();
+                tracks.push(...fullTrackData.tracks.filter(track => 
+                  track.artists.some(trackArtist => trackArtist.id === artist.id)
+                ));
+              }
+            }
+          }
+        }
+        
+        // Remove duplicates and sort by popularity
+        const uniqueTracks = tracks.filter((track, index, self) => 
+          index === self.findIndex(t => t.id === track.id)
+        );
+        
+        tracks = uniqueTracks.sort((a, b) => b.popularity - a.popularity);
+      }
       
-      data = await res.json();
-      
-      if (data.tracks.length > 0) {
-        const uris = data.tracks.slice(0, 5).map(t => t.uri);
+      if (tracks.length > 0) {
+        const uris = tracks.slice(0, trackCount).map(t => t.uri);
         allUris.push(`# ${artist.name}`, ...uris, '');
+        console.log(`${artist.name} tracks:`, tracks.slice(0, trackCount).map(t => `${t.name} (popularity: ${t.popularity})`));
       }
     }
     
@@ -151,6 +205,7 @@ document.getElementById("fetchBtn").onclick = async () => {
     
   } catch (error) {
     document.getElementById("output").value = "Error: " + error.message;
+    console.error("Detailed error:", error);
   } finally {
     fetchBtn.disabled = false;
     fetchBtn.textContent = "Get Top Tracks";
