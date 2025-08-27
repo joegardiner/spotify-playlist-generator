@@ -291,6 +291,12 @@ document.getElementById("fetchBtn").onclick = async () => {
     showError("Please enter at least one artist name");
     return;
   }
+
+  // Clear previous results
+  allTracks = [];
+  document.getElementById('output').value = '';
+  document.getElementById('trackList').innerHTML = '';
+  document.getElementById('trackSelectionSection').style.display = 'none';
   
   // Get options
   const trackCount = parseInt(document.getElementById("trackCount").value);
