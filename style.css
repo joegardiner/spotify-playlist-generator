@@ -664,6 +664,10 @@ textarea#artistTextarea:disabled {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  box-sizing: border-box;
+  padding-right: 10px; /* Increased from 18px for more space */
+  overflow-y: auto;
+  background-clip: padding-box;
 }
 
 .artist-group {
