@@ -400,6 +400,50 @@ document.getElementById("fetchBtn").onclick = async () => {
           );
           
           tracks = uniqueTracks.sort((a, b) => b.popularity - a.popularity);
+
+        } else if (sortMethod === 'random') {
+          // Get all albums (limit to 20 for performance)
+          res = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/albums?include_groups=album,single&market=${userMarket}&limit=20`, {
+            headers: { Authorization: "Bearer " + accessToken }
+          });
+
+          if (!res.ok) throw new Error(`Failed to fetch albums: ${res.status}`);
+
+          const albumData = await res.json();
+          const albumIds = albumData.items.map(album => album.id);
+
+          let allArtistTracks = [];
+          for (const albumId of albumIds) {
+            res = await fetch(`https://api.spotify.com/v1/albums/${albumId}/tracks?market=${userMarket}`, {
+              headers: { Authorization: "Bearer " + accessToken }
+            });
+
+            if (res.ok) {
+              const trackData = await res.json();
+              allArtistTracks.push(...trackData.items.map(track => ({
+                ...track,
+                album: albumData.items.find(a => a.id === albumId)
+              })));
+            }
+          }
+
+          // Filter tracks to only those by the artist
+          allArtistTracks = allArtistTracks.filter(track =>
+            track.artists.some(trackArtist => trackArtist.id === artist.id)
+          );
+
+          // Remove duplicates
+          const uniqueTracks = allArtistTracks.filter((track, index, self) =>
+            index === self.findIndex(t => t.id === track.id)
+          );
+
+          // Shuffle tracks
+          for (let i = uniqueTracks.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [uniqueTracks[i], uniqueTracks[j]] = [uniqueTracks[j], uniqueTracks[i]];
+          }
+
+          tracks = uniqueTracks.slice(0, trackCount);
         }
         
         if (tracks.length > 0) {

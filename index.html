@@ -49,7 +49,8 @@
               <span class="tooltip-icon">?</span>
               <div class="tooltip">
                 <strong>Top Tracks:</strong> Uses Spotify's curated "top tracks" for each artist, which represents their most popular and recognisable songs.<br><br>
-                <strong>Popularity:</strong> Ranks tracks by Spotify's popularity algorithm based on total plays and recency. Songs being played a lot now will rank higher than older hits.
+                <strong>Popularity:</strong> Ranks tracks by Spotify's popularity algorithm based on total plays and recency. Songs being played a lot now will rank higher than older hits.<br><br>
+                <strong>Randomised:</strong> Picks random tracks from the artist's albums and singles.
                 <br><br><i>Notes: top tracks is limited to 10 tracks, and popularity selection will take longer to generate but can return 20 tracks</i>.
               </div>
             </div>
@@ -57,6 +58,7 @@
           <select id="sortMethod" disabled>
             <option value="popularity" selected>Top Tracks</option>
             <option value="plays">Popularity</option>
+            <option value="random">Randomised</option>
           </select>
         </div>
         <div class="option-group">
